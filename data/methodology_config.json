@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "threshold_percent": 70,
+  "hard_skills_only": true,
+  "grades_order": [
+    "Сеньор",
+    "Мидл+",
+    "Мидл",
+    "Джун+",
+    "Стажер"
+  ],
+  "excluded_competencies": [],
+  "notes": "Methodology based on PDF Методика_расчета_грейда.pdf",
+  "interpretation_rules": {
+    "calculation": "For each grade, count percentage of hard competencies where actual >= required",
+    "grade_assignment": "Highest grade where percentage >= 70%",
+    "soft_skills": "Excluded from calculation",
+    "empty_values": "Ignored (not counted in numerator or denominator)"
+  }
+}
