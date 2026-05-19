@@ -1,7 +1,14 @@
 {
-  "version": "1.0",
-  "threshold_percent": 70,
-  "hard_skills_only": true,
+  "version": "3.1",
+  "date": "2026-05-19",
+  "thresholds": {
+    "Стажер": 70,
+    "Джун+": 70,
+    "Мидл": 70,
+    "Мидл+": 80,
+    "Сеньор": 80
+  },
+  "hard_skills_only": false,
   "grades_order": [
     "Сеньор",
     "Мидл+",
@@ -9,12 +16,27 @@
     "Джун+",
     "Стажер"
   ],
-  "excluded_competencies": [],
-  "notes": "Methodology based on PDF Методика_расчета_грейда.pdf",
-  "interpretation_rules": {
-    "calculation": "For each grade, count percentage of hard competencies where actual >= required",
-    "grade_assignment": "Highest grade where percentage >= 70%",
-    "soft_skills": "Excluded from calculation",
-    "empty_values": "Ignored (not counted in numerator or denominator)"
-  }
+  "fallback_grade": "Джун+",
+  "check_direction": "top_down",
+  "canonical_matrices": {
+    "1C": "assets/Матрица_компетенций_1С.xlsx",
+    "WEB": "assets/Матрица_компетенций_WEB.xlsx"
+  },
+  "matrix_stats": {
+    "1C": {
+      "skills": 51,
+      "Sr_three_count": 10
+    },
+    "WEB": {
+      "skills": 46,
+      "Sr_three_count": 10
+    }
+  },
+  "data_sources": {
+    "1C_self": "assets/data/1с_самооценка_2026-05-14.xlsx",
+    "1C_manager": "assets/data/1с_оценка_руководителя_2026-05-14.xlsx",
+    "WEB_self": "assets/data/web_самооценка_2026-05-14.xlsx",
+    "WEB_manager": "assets/data/web_оценка_руководителя_2026-05-14.xlsx"
+  },
+  "notes": "v3.1: Hard+Soft вместе, пороги S/J+/M=70%, M+=80%, Sr=80%. Канонические матрицы: Титов (10 троек на Sr для 1C). Проверка сверху вниз. Fallback=Джун+. GAP-анализ добавлен."
 }
