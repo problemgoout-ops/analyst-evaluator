@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Состав ЦК — Центр архитектуры и анализа</title>
+<style>
+ :root {
+ --bg: #141414;
+ --surface: #1F1F1F;
+ --card: #252525;
+ --card-hover: #2C2C2C;
+ --border: #2C2C2C;
+ --border-light: #333333;
+ --text: #FFFFFF;
+ --muted: #BDBDBD;
+ --text-secondary: #8A8A8A;
+ --accent-start: #E84E0E;
+ --accent-end: #FF8A1E;
+ --accent: linear-gradient(135deg, #E84E0E 0%, #FF8A1E 100%);
+ --radius: 12px;
+ --radius-sm: 8px;
+ --radius-pill: 999px;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ html, body {
+ height: 100%;
+ font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+ font-size: 14px;
+ line-height: 1.5;
+ color: var(--text);
+ background: var(--bg);
+ -webkit-font-smoothing: antialiased;
+ }
+ .appbar {
+ height: 68px;
+ border-bottom: 1px solid var(--border);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 0 48px;
+ background: rgba(20,20,20,0.92);
+ backdrop-filter: blur(8px);
+ position: sticky;
+ top: 0;
+ z-index: 100;
+ }
+ .brand {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ font-size: 15px;
+ font-weight: 700;
+ letter-spacing: 0.02em;
+ text-decoration: none;
+ color: var(--text);
+ }
+ .brand:hover { opacity: 0.85; }
+ .brand-mark {
+ width: 28px;
+ height: 28px;
+ border-radius: 6px;
+ background: var(--accent);
+ flex-shrink: 0;
+ }
+ .header-meta {
+ font-size: 13px;
+ color: var(--muted);
+ font-weight: 400;
+ }
+ .container {
+ max-width: 1440px;
+ margin: 0 auto;
+ padding: 40px 48px 60px;
+ }
+ .page-header {
+ margin-bottom: 28px;
+ }
+ .page-title {
+ font-size: 32px;
+ font-weight: 700;
+ letter-spacing: -0.02em;
+ line-height: 1.2;
+ margin-bottom: 8px;
+ }
+ .page-subtitle {
+ font-size: 15px;
+ color: var(--muted);
+ line-height: 1.4;
+ }
+ .last-updated {
+ font-size: 12px;
+ color: var(--text-secondary);
+ margin-top: 8px;
+ }
+ .filters {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ margin-bottom: 32px;
+ align-items: center;
+ }
+ .filter-group { position: relative; }
+ .filter-group select,
+ .search-field {
+ appearance: none;
+ -webkit-appearance: none;
+ background: var(--surface);
+ color: var(--text);
+ border: 1px solid var(--border-light);
+ border-radius: var(--radius-sm);
+ padding: 10px 32px 10px 14px;
+ font-size: 13px;
+ font-family: inherit;
+ cursor: pointer;
+ outline: none;
+ min-width: 140px;
+ transition: border-color .2s, box-shadow .2s;
+ }
+ .filter-group select:hover,
+ .search-field:hover { border-color: #444; }
+ .filter-group select:focus,
+ .search-field:focus {
+ border-color: var(--accent-end);
+ box-shadow: 0 0 0 3px rgba(255,138,30,0.12);
+ }
+ .search-field {
+ min-width: 260px;
+ cursor: text;
+ padding-left: 40px;
+ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A8A8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E");
+ background-repeat: no-repeat;
+ background-position: 14px center;
+ }
+ .filter-group::after {
+ content: "";
+ position: absolute;
+ right: 12px;
+ top: 50%;
+ transform: translateY(-50%);
+ width: 0; height: 0;
+ border-left: 4px solid transparent;
+ border-right: 4px solid transparent;
+ border-top: 4px solid var(--muted);
+ pointer-events: none;
+ }
+ .departments {
+ display: flex;
+ flex-direction: column;
+ gap: 16px;
+ }
+ .dept-card {
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ overflow: hidden;
+ transition: border-color .2s;
+ }
+ .dept-card:hover { border-color: var(--border-light); }
+ .dept-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 20px 24px;
+ cursor: pointer;
+ user-select: none;
+ gap: 16px;
+ transition: background .2s;
+ }
+ .dept-header:hover { background: rgba(255,255,255,0.03); }
+ .dept-left {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ flex: 1;
+ min-width: 0;
+ }
+ .dept-arrow {
+ color: var(--muted);
+ transition: transform .25s ease, color .2s;
+ flex-shrink: 0;
+ margin-top: 1px;
+ }
+ .dept-card.open .dept-arrow {
+ transform: rotate(90deg);
+ color: var(--accent-end);
+ }
+ .dept-title {
+ font-size: 16px;
+ font-weight: 700;
+ letter-spacing: 0.01em;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ }
+ .dept-count {
+ font-size: 12px;
+ font-weight: 600;
+ color: var(--text-secondary);
+ background: rgba(255,255,255,0.06);
+ padding: 4px 10px;
+ border-radius: var(--radius-pill);
+ flex-shrink: 0;
+ }
+ .dept-body {
+ max-height: 0;
+ opacity: 0;
+ overflow: hidden;
+ transition: max-height .35s ease, opacity .25s ease, padding .25s ease;
+ padding: 0 24px;
+ }
+ .dept-card.open .dept-body {
+ max-height: 2000px;
+ opacity: 1;
+ padding-bottom: 24px;
+ }
+ .employee-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+ gap: 16px;
+ }
+ .employee-card {
+ background: var(--card);
+ border: 1px solid var(--border-light);
+ border-radius: var(--radius-sm);
+ padding: 20px;
+ cursor: pointer;
+ transition: transform .15s ease, border-color .2s, background .2s;
+ display: flex;
+ flex-direction: column;
+ gap: 14px;
+ text-decoration: none;
+ color: inherit;
+ }
+ .employee-card:hover {
+ background: var(--card-hover);
+ border-color: #444;
+ transform: translateY(-2px);
+ }
+ .emp-header {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ }
+ .emp-avatar {
+ width: 44px;
+ height: 44px;
+ border-radius: 50%;
+ background: var(--accent);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 13px;
+ font-weight: 700;
+ color: #fff;
+ flex-shrink: 0;
+ letter-spacing: 0.02em;
+ }
+ .emp-name-block { min-width: 0; }
+ .emp-name {
+ font-size: 15px;
+ font-weight: 700;
+ line-height: 1.3;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ }
+ .emp-product {
+ font-size: 13px;
+ color: var(--muted);
+ margin-top: 2px;
+ }
+ .emp-badges {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 8px;
+ }
+ .badge {
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ font-size: 12px;
+ padding: 5px 10px;
+ border-radius: var(--radius-pill);
+ background: rgba(255,255,255,0.06);
+ color: var(--muted);
+ border: 1px solid transparent;
+ line-height: 1;
+ }
+ .badge-grade {
+ background: rgba(255,138,30,0.10);
+ color: var(--accent-end);
+ border-color: rgba(255,138,30,0.25);
+ }
+ .badge-integral {
+ background: rgba(20,117,70,0.12);
+ color: #4ade80;
+ border-color: rgba(20,117,70,0.25);
+ }
+ .badge-location-ext {
+ background: rgba(200,160,80,0.12);
+ color: #d4a847;
+ border-color: rgba(200,160,80,0.25);
+ }
+ .badge-location-int {
+ background: rgba(20,117,70,0.12);
+ color: #4ade80;
+ border-color: rgba(20,117,70,0.25);
+ }
+ .empty-state {
+ display: none;
+ padding: 60px 24px;
+ text-align: center;
+ color: var(--muted);
+ font-size: 15px;
+ }
+ .empty-state.visible { display: block; }
+ .back-link {
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ font-size: 13px;
+ color: var(--muted);
+ text-decoration: none;
+ margin-bottom: 20px;
+ transition: color .2s;
+ }
+ .back-link:hover { color: var(--accent-end); }
+ ::-webkit-scrollbar { width: 8px; height: 8px; }
+ ::-webkit-scrollbar-track { background: var(--bg); }
+ ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+ ::-webkit-scrollbar-thumb:hover { background: #444; }
+ @media (max-width: 640px) {
+ .appbar { padding: 0 20px; }
+ .container { padding: 24px 20px 40px; }
+ .page-title { font-size: 24px; }
+ .search-field { min-width: 100%; }
+ .filter-group select { min-width: 100%; }
+ }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+ <a href="index.html" class="brand">
+ <div class="brand-mark"></div>
+ <span>Центр архитектуры и анализа</span>
+ </a>
+ <div class="header-meta">Состав ЦК</div>
+</header>
+
+<main class="container">
+ <a href="index.html" class="back-link">
+ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+ Назад к инструментам
+ </a>
+
+ <div class="page-header">
+ <h1 class="page-title">Состав ЦК</h1>
+ <p class="page-subtitle">Аналитики и специалисты: грейды, компетенции, состав команд</p>
+ <div class="last-updated" id="lastUpdated"></div>
+ </div>
+
+ <div class="filters">
+ <input type="text" class="search-field" id="searchInput" placeholder="Поиск по ФИО">
+ <div class="filter-group">
+ <select id="gradeFilter"><option value="">Все грейды</option></select>
+ </div>
+ <div class="filter-group">
+ <select id="locationFilter"><option value="">Всё нахождение</option></select>
+ </div>
+ </div>
+
+ <div id="departmentsContainer" class="departments"></div>
+ <div id="emptyState" class="empty-state">Нет сотрудников, соответствующих выбранным фильтрам</div>
+</main>
+
+<script>
+// ============================================================
+// NOTION → PAGE FIELD MAPPING
+// ============================================================
+// Page field          ← Notion column
+// ------------------------------------------------------------
+// Аккордеон отдела    ← Отдел (select)
+// ФИО + аватар        ← Фамилия Имя (title)
+// Под ФИО: грейд·лок  ← Самооценка (select) + Нахождение (select: Внешний/Внутренний)
+// Бейдж               ← Интегральная оценка (select: A/B/C/D/E)
+// Бейдж продукт       ← Продукт (select)
+// ============================================================
+
+let employees = [];
+let dataLoadedAt = null;
+
+async function loadData() {
+ try {
+  const res = await fetch('/data.json?v=20260522d&t=' + Date.now());
+  if (!res.ok) throw new Error('No data.json');
+  const data = await res.json();
+  if (data.employees && data.employees.length > 0) {
+   employees = data.employees;
+   dataLoadedAt = data.updatedAt;
+  }
+ } catch (e) {
+  console.warn('Could not load data.json, using fallback');
+ }
+ render();
+ populateFilters();
+}
+
+const getInitials = (name) => {
+ const parts = name.split(" ");
+ return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+};
+
+const isHighGrade = (grade) => {
+ return ["Senior", "Сеньор", "Мидл+", "Middle+", "Lead", "Junior+"].includes(grade);
+};
+
+const populateFilters = () => {
+ const makeOptions = (key, el) => {
+  const values = [...new Set(employees.map(e => e[key]).filter(Boolean))].sort();
+  values.forEach(v => {
+   const opt = document.createElement("option");
+   opt.value = v;
+   opt.textContent = v;
+   el.appendChild(opt);
+  });
+ };
+ makeOptions("grade", document.getElementById("gradeFilter"));
+ makeOptions("location", document.getElementById("locationFilter"));
+};
+
+const render = () => {
+ const container = document.getElementById("departmentsContainer");
+ const empty = document.getElementById("emptyState");
+ const search = document.getElementById("searchInput").value.trim().toLowerCase();
+ const gradeVal = document.getElementById("gradeFilter").value;
+ const locVal = document.getElementById("locationFilter").value;
+
+ const filtered = employees.filter(e => {
+  if (search && !e.name.toLowerCase().includes(search)) return false;
+  if (gradeVal && e.grade !== gradeVal) return false;
+  if (locVal && e.location !== locVal) return false;
+  return true;
+ });
+
+ container.innerHTML = "";
+ if (!filtered.length) {
+  empty.classList.add("visible");
+  return;
+ }
+ empty.classList.remove("visible");
+
+ if (dataLoadedAt) {
+  const d = new Date(dataLoadedAt);
+  document.getElementById("lastUpdated").textContent =
+   "Обновлено: " + d.toLocaleDateString("ru-RU") + " " + d.toLocaleTimeString("ru-RU", {hour:"2-digit",minute:"2-digit"});
+ }
+
+ const grouped = {};
+ filtered.forEach(e => {
+  if (!grouped[e.dept]) grouped[e.dept] = [];
+  grouped[e.dept].push(e);
+ });
+
+ Object.keys(grouped).forEach((deptName) => {
+  const list = grouped[deptName];
+  const card = document.createElement("div");
+  card.className = "dept-card open";
+
+  const header = document.createElement("div");
+  header.className = "dept-header";
+  header.innerHTML = `
+   <div class="dept-left">
+    <svg class="dept-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    <div class="dept-title">${deptName}</div>
+   </div>
+   <div class="dept-count">${list.length} чел.</div>
+  `;
+
+  const body = document.createElement("div");
+  body.className = "dept-body";
+
+  const grid = document.createElement("div");
+  grid.className = "employee-grid";
+
+  list.forEach(emp => {
+   const gradeClass = emp.grade && isHighGrade(emp.grade) ? "badge-grade" : "";
+   const locClass = emp.location === "Внутренний" ? "badge-location-int" :
+                    emp.location === "Внешний" ? "badge-location-ext" : "";
+   const integralBadge = emp.integral ? `<span class="badge badge-integral">${emp.integral}</span>` : "";
+   const productBadge = emp.product ? `<span class="badge">${emp.product}</span>` : "";
+   const locationStr = emp.location || "";
+   const gradeStr = emp.grade || "";
+
+   const productStr = emp.product || "";
+
+   // Slugify name for URL (latin only)
+   const slug = emp.name
+    .replace(/а/g, 'a').replace(/б/g, 'b').replace(/в/g, 'v').replace(/г/g, 'g').replace(/д/g, 'd').replace(/е/g, 'e').replace(/ё/g, 'yo').replace(/ж/g, 'zh').replace(/з/g, 'z').replace(/и/g, 'i').replace(/й/g, 'y').replace(/к/g, 'k').replace(/л/g, 'l').replace(/м/g, 'm').replace(/н/g, 'n').replace(/о/g, 'o').replace(/п/g, 'p').replace(/р/g, 'r').replace(/с/g, 's').replace(/т/g, 't').replace(/у/g, 'u').replace(/ф/g, 'f').replace(/х/g, 'kh').replace(/ц/g, 'ts').replace(/ч/g, 'ch').replace(/ш/g, 'sh').replace(/щ/g, 'shch').replace(/ъ/g, '').replace(/ы/g, 'y').replace(/ь/g, '').replace(/э/g, 'e').replace(/ю/g, 'yu').replace(/я/g, 'ya')
+    .replace(/А/g, 'A').replace(/Б/g, 'B').replace(/В/g, 'V').replace(/Г/g, 'G').replace(/Д/g, 'D').replace(/Е/g, 'E').replace(/Ё/g, 'Yo').replace(/Ж/g, 'Zh').replace(/З/g, 'Z').replace(/И/g, 'I').replace(/Й/g, 'Y').replace(/К/g, 'K').replace(/Л/g, 'L').replace(/М/g, 'M').replace(/Н/g, 'N').replace(/О/g, 'O').replace(/П/g, 'P').replace(/Р/g, 'R').replace(/С/g, 'S').replace(/Т/g, 'T').replace(/У/g, 'U').replace(/Ф/g, 'F').replace(/Х/g, 'Kh').replace(/Ц/g, 'Ts').replace(/Ч/g, 'Ch').replace(/Ш/g, 'Sh').replace(/Щ/g, 'Shch').replace(/Ъ/g, '').replace(/Ы/g, 'Y').replace(/Ь/g, '').replace(/Э/g, 'E').replace(/Ю/g, 'Yu').replace(/Я/g, 'Ya')
+    .replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
+   const el = document.createElement("a");
+   el.className = "employee-card";
+   el.href = `analyst.html?name=${encodeURIComponent(emp.name)}`;
+   el.innerHTML = `
+    <div class="emp-header">
+     <div class="emp-avatar">${getInitials(emp.name)}</div>
+     <div class="emp-name-block">
+      <div class="emp-name">${emp.name}</div>
+      ${productStr ? `<div class="emp-product">${productStr}</div>` : ""}
+     </div>
+    </div>
+    <div class="emp-badges">
+     ${gradeStr ? `<span class="badge ${gradeClass}">${gradeStr}</span>` : ""}
+     ${integralBadge}
+     ${locClass ? `<span class="badge ${locClass}">${emp.location}</span>` : ""}
+    </div>
+   `;
+   grid.appendChild(el);
+  });
+
+  body.appendChild(grid);
+  card.appendChild(header);
+  card.appendChild(body);
+  container.appendChild(card);
+
+  header.addEventListener("click", () => {
+   card.classList.toggle("open");
+  });
+ });
+};
+
+document.querySelectorAll(".filters select, .search-field").forEach(el => {
+ el.addEventListener("input", render);
+ el.addEventListener("change", render);
+});
+
+loadData();
+</script>
+
+</body>
+</html>

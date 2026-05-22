@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Профиль — Центр архитектуры и анализа</title>
+<style>
+ :root {
+ --bg: #141414; --surface: #1F1F1F; --card: #252525; --border: #2A2A2A;
+ --fg: #FFFFFF; --muted: #A0A0A0;
+ --accent-start: #E84E0E; --accent-end: #FF8A1E;
+ --accent: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+ --radius: 12px; --radius-sm: 8px; --radius-pill: 999px; --max-width: 1200px; --gap: 20px;
+ }
+ * { box-sizing: border-box; }
+ html, body { margin:0; padding:0; background:var(--bg); color:var(--fg); font-family:Arial,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased; }
+ a { color:var(--fg); text-decoration:none; }
+ .container { max-width:var(--max-width); margin:0 auto; padding:24px 48px; }
+ .back-link { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:14px; margin-bottom:24px; transition:color 0.2s; }
+ .back-link:hover { color:var(--fg); }
+ .back-link .arrow { font-size:16px; color:var(--accent-start); }
+ .profile-header { margin-bottom:32px; }
+ .profile-name { font-size:40px; font-weight:700; margin:0 0 16px; letter-spacing:-0.01em; }
+ .meta-grid { display:flex; flex-wrap:wrap; gap:12px 16px; }
+ .meta-chip { display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); padding:8px 14px; border-radius:var(--radius-sm); font-size:14px; }
+ .meta-chip .label { color:var(--muted); }
+ .meta-chip .value { color:var(--fg); font-weight:600; }
+ .section { margin-bottom:40px; }
+ .section-title { font-size:22px; font-weight:700; margin:0 0 20px; }
+ .cards-row-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
+ .cards-row-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:14px; }
+ .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; transition:border-color 0.2s; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+ .kpi-card:hover { border-color:#3a3a3a; }
+ .kpi-label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:0.04em; flex-shrink:0; }
+ .kpi-value { font-size:22px; font-weight:700; margin:0; background:linear-gradient(90deg,var(--accent-start),var(--accent-end)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2; }
+ .text-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+ .text-block h4 { margin:0 0 12px; font-size:16px; font-weight:600; color:var(--fg); }
+ .text-block ul { margin:0; padding-left:18px; color:var(--muted); font-size:15px; line-height:1.7; }
+ .text-block li { margin-bottom:8px; }
+ .text-block .accent-line { color:var(--fg); font-weight:600; }
+ .ipr-table { width:100%; margin-top:8px; }
+ .ipr-header { display:grid; grid-template-columns:2fr 3fr 3fr 3fr; background:var(--surface); border-radius:var(--radius-sm) var(--radius-sm) 0 0; border:1px solid var(--border); border-bottom:none; }
+ .ipr-row { display:grid; grid-template-columns:2fr 3fr 3fr 3fr; border:1px solid var(--border); border-top:none; }
+ .ipr-row:last-child { border-radius:0 0 var(--radius-sm) var(--radius-sm); }
+ .ipr-header .ipr-col { padding:10px 14px; font-size:12px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); font-weight:600; }
+ .ipr-col { padding:12px 14px; font-size:14px; border-right:1px solid var(--border); }
+ .ipr-col:last-child { border-right:none; }
+ .ipr-skill-name { font-weight:600; }
+ .ipr-placeholder { color:var(--muted); opacity:0.4; }
+ .not-found { text-align:center; padding:80px 20px; color:var(--muted); }
+ .not-found h2 { font-size:20px; margin-bottom:12px; color:var(--fg); }
+ .err-debug { color:red; padding:20px; font-size:14px; }
+ @media (max-width:768px) {
+ .cards-row-3,.cards-row-2 { grid-template-columns:1fr; }
+ .container { padding:16px; }
+ .profile-name { font-size:28px; }
+ }
+</style>
+</head>
+<body>
+<div class="container" id="profileContent">
+ <div class="not-found">
+  <h2>Загрузка...</h2>
+  <p>Подождите, идёт загрузка данных.</p>
+ </div>
+</div>
+<script>
+var employees = [];
+
+function loadData() {
+ fetch('/data.json')
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+   employees = data.employees || [];
+   renderProfile();
+  })
+  .catch(function(err) {
+   document.getElementById('profileContent').innerHTML = '<div class="err-debug">Ошибка загрузки: ' + err.message + '</div>';
+  });
+}
+
+function parseDetail(text) {
+ if (!text) return [];
+ return text.split(';').map(function(s) {
+  var parts = s.trim().split(':');
+  if (parts.length >= 2) {
+   return { block: parts[0].trim(), skills: parts.slice(1).join(':').trim().split(',').map(function(x){return x.trim();}) };
+  }
+  return { block: s.trim(), skills: [] };
+ }).filter(function(x){return x.block;});
+}
+
+function renderProfile() {
+ var params = new URLSearchParams(window.location.search);
+ var nameParam = params.get('name');
+ if (!nameParam) {
+  document.getElementById('profileContent').innerHTML = '<div class="not-found"><h2>Аналитик не найден</h2><p>Вернитесь на <a href="analysts.html" style="color:#FF8A1E;">каталог</a> и выберите сотрудника.</p></div>';
+  return;
+ }
+
+ var emp = null;
+ for (var i = 0; i < employees.length; i++) {
+  if (employees[i].name === nameParam) { emp = employees[i]; break; }
+ }
+ if (!emp) {
+  document.getElementById('profileContent').innerHTML = '<div class="not-found"><h2>Аналитик не найден</h2><p>&laquo;' + nameParam + '&raquo; не найден.<br>Вернитесь на <a href="analysts.html" style="color:#FF8A1E;">каталог</a>.</p></div>';
+  return;
+ }
+
+ var gapItems = parseDetail(emp.gap_detail);
+ var exceedsItems = parseDetail(emp.exceeds_detail);
+ var targetGrade = (emp.skills && emp.skills.length > 0) ? emp.skills[0].targetGrade : '';
+ var allSkills = emp.skills || [];
+
+ var h = '';
+ h += '<a href="analysts.html" class="back-link"><span class="arrow">&larr;</span> Назад к списку</a>';
+ h += '<header class="profile-header"><h1 class="profile-name">' + emp.name + '</h1>';
+ h += '<div class="meta-grid">';
+ h += '<div class="meta-chip"><span class="label">Отдел</span><span class="value">' + (emp.dept || '&mdash;') + '</span></div>';
+ if (emp.stack) h += '<div class="meta-chip"><span class="label">Стек</span><span class="value">' + emp.stack + '</span></div>';
+ if (emp.product) h += '<div class="meta-chip"><span class="label">Продукт</span><span class="value">' + emp.product + '</span></div>';
+ if (emp.location) h += '<div class="meta-chip"><span class="label">Нахождение</span><span class="value">' + emp.location + '</span></div>';
+ h += '</div></header>';
+
+ // Оценка - Row 1
+ h += '<section class="section"><h2 class="section-title">Оценка</h2>';
+ h += '<div class="cards-row-3">';
+ h += '<div class="kpi-card"><div class="kpi-label">Самооценка</div><div class="kpi-value">' + (emp.grade || '&mdash;') + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">Руководитель</div><div class="kpi-value">' + (emp.managerGrade || '&mdash;') + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">Разница</div><div class="kpi-value">' + (emp.evalDiff || '&mdash;') + '</div></div>';
+ h += '</div>';
+ // Row 2
+ h += '<div class="cards-row-3">';
+ h += '<div class="kpi-card"><div class="kpi-label">Интегральная оценка</div><div class="kpi-value">' + (emp.integral || '&mdash;') + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">Потенциал (ПИФ)</div><div class="kpi-value">' + (emp.pif || '&mdash;') + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">Руководитель ФР</div><div class="kpi-value">' + (emp.managerFR || '&mdash;') + '</div></div>';
+ h += '</div>';
+ // Row 3 - ППД
+ h += '<div class="cards-row-2">';
+ h += '<div class="kpi-card"><div class="kpi-label">ППД</div><div class="kpi-value">' + (emp.ppdResult || (emp.ppdStatus === 'Не пройден' ? 'Не пройден' : (emp.ppdStatus || '&mdash;'))) + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">PlayBook</div><div class="kpi-value">' + (emp.playbookResult || (emp.playbookStatus === 'Не пройден' ? 'Не пройден' : (emp.playbookStatus || '&mdash;'))) + '</div></div>';
+ h += '</div>';
+ h += '</section>';
+
+ // GAP
+ h += '<section class="section"><h2 class="section-title">GAP' + (targetGrade ? ' &rarr; ' + targetGrade : '') + '</h2>';
+ h += '<div class="cards-row-2">';
+ h += '<div class="kpi-card"><div class="kpi-label">GAP блоков</div><div class="kpi-value">' + (emp.gap_blocks || 0) + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">GAP навыков</div><div class="kpi-value">' + (emp.gap_skills || 0) + '</div></div>';
+ h += '</div>';
+ if (gapItems.length > 0) {
+  h += '<div class="text-block"><h4>GAP (блоки &rarr; навыки)</h4><ul>';
+  for (var gi = 0; gi < gapItems.length; gi++) {
+   h += '<li><span class="accent-line">' + gapItems[gi].block + '</span> &mdash; ' + gapItems[gi].skills.join(', ') + '</li>';
+  }
+  h += '</ul></div>';
+ }
+ h += '</section>';
+
+ // Превышает
+ h += '<section class="section"><h2 class="section-title">Превышает' + (targetGrade ? ' &rarr; ' + targetGrade : '') + '</h2>';
+ h += '<div class="cards-row-2">';
+ h += '<div class="kpi-card"><div class="kpi-label">Превышает блоков</div><div class="kpi-value">' + (emp.exceeds_blocks || 0) + '</div></div>';
+ h += '<div class="kpi-card"><div class="kpi-label">Превышает навыков</div><div class="kpi-value">' + (emp.exceeds_skills || 0) + '</div></div>';
+ h += '</div>';
+ if (exceedsItems.length > 0) {
+  h += '<div class="text-block"><h4>Превышает (блоки &rarr; навыки)</h4><ul>';
+  for (var ei = 0; ei < exceedsItems.length; ei++) {
+   h += '<li><span class="accent-line">' + exceedsItems[ei].block + '</span> &mdash; ' + exceedsItems[ei].skills.join(', ') + '</li>';
+  }
+  h += '</ul></div>';
+ }
+ h += '</section>';
+
+ // IPR - show GAP skills (not exceeds)
+ var gapSkills = [];
+ for (var gi = 0; gi < gapItems.length; gi++) {
+  for (var si = 0; si < gapItems[gi].skills.length; si++) {
+   gapSkills.push({ block: gapItems[gi].block, skill: gapItems[gi].skills[si] });
+  }
+ }
+
+ if (gapSkills.length > 0) {
+  h += '<section class="section"><h2 class="section-title">ИПР</h2>';
+  h += '<div class="ipr-table">';
+  h += '<div class="ipr-header"><div class="ipr-col">Навык</div><div class="ipr-col">Литература</div><div class="ipr-col">Практическое задание</div><div class="ipr-col">Поведение в работе</div></div>';
+  for (var si = 0; si < gapSkills.length; si++) {
+   h += '<div class="ipr-row">';
+   h += '<div class="ipr-col ipr-skill-name"><span class="accent-line">' + gapSkills[si].skill + '</span></div>';
+   h += '<div class="ipr-col ipr-placeholder">&mdash;</div>';
+   h += '<div class="ipr-col ipr-placeholder">&mdash;</div>';
+   h += '<div class="ipr-col ipr-placeholder">&mdash;</div>';
+   h += '</div>';
+  }
+  h += '</div></section>';
+ }
+
+ document.getElementById('profileContent').innerHTML = h;
+}
+
+loadData();
+</script>
+</body>
+</html>

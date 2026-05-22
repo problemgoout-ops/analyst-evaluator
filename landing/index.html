@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Аналитика компетенций — Центр архитектуры и анализа</title>
+<style>
+  :root {
+    --bg: #141414;
+    --surface: #1F1F1F;
+    --card: #252525;
+    --card-hover: #2C2C2C;
+    --border: #2C2C2C;
+    --border-light: #333333;
+    --text: #FFFFFF;
+    --muted: #BDBDBD;
+    --text-secondary: #8A8A8A;
+    --accent-start: #E84E0E;
+    --accent-end: #FF8A1E;
+    --accent: linear-gradient(135deg, #E84E0E 0%, #FF8A1E 100%);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .appbar {
+    height: 68px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    background: rgba(20,20,20,0.92);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .header-meta {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 80px 48px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 68px);
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    cursor: pointer;
+    transition: border-color .25s, transform .25s, box-shadow .25s;
+    max-width: 680px;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .tool-card:hover {
+    border-color: var(--accent-end);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(232,78,14,0.12);
+  }
+
+  .tool-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: rgba(232,78,14,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tool-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tool-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-end);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .tool-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .tool-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .spec {
+    font-size: 13px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.05);
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .spec strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .tool-action {
+    flex-shrink: 0;
+  }
+
+  .btn-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity .2s, transform .2s;
+    white-space: nowrap;
+  }
+
+  .btn-open:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+
+  @media (max-width: 640px) {
+    .tool-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 28px;
+    }
+    .tool-specs {
+      justify-content: center;
+    }
+    .appbar {
+      padding: 0 20px;
+    }
+    .container {
+      padding: 40px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span>Центр архитектуры и анализа</span>
+  </div>
+  <div class="header-meta">Аналитика компетенций</div>
+</header>
+
+<main class="container">
+  <a href="analysts.html" class="tool-card">
+    <div class="tool-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF8A1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+    </div>
+    <div class="tool-info">
+      <div class="tool-label">Инструмент</div>
+      <div class="tool-name">Матрица компетенций аналитиков 1С</div>
+      <div class="tool-specs">
+        <span class="spec"><strong>51</strong> навык</span>
+        <span class="spec"><strong>24</strong> блока компетенций</span>
+        <span class="spec"><strong>3</strong> целевых грейда</span>
+        <span class="spec">Мидл · Мидл+ · Сеньор</span>
+      </div>
+    </div>
+    <div class="tool-action">
+      <span class="btn-open">
+        Открыть
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </span>
+    </div>
+  </a>
+</main>
+
+</body>
+</html>
